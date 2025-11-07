@@ -1,5 +1,6 @@
 package page;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -25,31 +26,41 @@ public class LoginPage {
         driver.findElement(registerLink).click();
     }
 
-
+    @Step("Ожидание загрузки страницы входа")
     public void waitForLoadLoginPage() {
         new WebDriverWait(driver, Duration.ofSeconds(5))
                 .until(ExpectedConditions.visibilityOfElementLocated(loginPage));
     }
 
+    @Step("Ввод Email на страницe входа")
     public void inputEmail(String email) {
         driver.findElement(fieldEmail).sendKeys(email);
     }
 
+    @Step("Ввод пароля на страницe входа")
     public void inputPassword(String password) {
         driver.findElement(fieldPassword).sendKeys(password);
     }
 
+    @Step("Ввод Email и пароля")
     public void login(String email, String password) {
         inputEmail(email);
         inputPassword(password);
     }
 
+    @Step("Нажатие на кнопку 'Войти'")
     public void clickLoginButton() {
         driver.findElement(loginButton).click();
     }
 
+    @Step("Нажатие на кнопку 'Восстановить пароль'")
     public void clickForgotPassword(){
         driver.findElement(forgotPasswordLink).click();
+    }
+
+    @Step("Получение текста заголовка страницы 'Логин'")
+    public String getTextLoginPage() {
+        return driver.findElement(loginPage).getText();
     }
 }
 

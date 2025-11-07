@@ -1,5 +1,6 @@
-import ApiBase.model.UserAuthModel;
-import ApiBase.model.UserModel;
+import io.qameta.allure.Description;
+import user_api.model.UserAuthModel;
+import user_api.model.UserModel;
 import com.github.javafaker.Faker;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.qameta.allure.junit4.DisplayName;
@@ -7,8 +8,6 @@ import io.restassured.RestAssured;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -17,39 +16,45 @@ import page.LoginPage;
 import page.MainPage;
 import page.RegisterPage;
 
-import static ApiBase.constants.ApiConstant.URL;
-import static ApiBase.userApi.*;
+import static org.junit.Assert.assertEquals;
+import static user_api.constants.ApiConstant.URL;
+import static user_api.User.*;
 
-@RunWith(Parameterized.class)
+
 public class LoginTest {
     private MainPage mainPage;
     private WebDriver driver;
     private LoginPage loginPage;
     private RegisterPage registerPage;
     private ForgotPasswordPage passwordPage;
-    private String browser;
     private String name;
     private String email;
     private String password;
 
-    public LoginTest(String browser) {
-        this.browser = browser;
-    }
-
-
     @Before
     public void setUp() {
-        ChromeOptions options = new ChromeOptions();
         RestAssured.baseURI = URL;
-        if (browser.equals("chromedriver")) {
+
+        String browser = System.getProperty("browser", "chrome");
+
+        ChromeOptions options = new ChromeOptions();
+
+        if (browser.equals("chrome")) {
             WebDriverManager.chromedriver().setup();
             driver = new ChromeDriver(options);
 
-        } else if (browser.equals("yandexdriver")) {
+        } else if (browser.equals("yandex")) {
             WebDriverManager.chromedriver().browserVersion("140").setup();
             options.setBinary("C:\\Users\\user\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe");
             driver = new ChromeDriver(options);
         }
+
+        Faker faker = new Faker();
+        name = faker.name().firstName();
+        email = faker.internet().emailAddress();
+        password = faker.internet().password();
+        UserModel user = new UserModel(email, password, name);
+        createUser(user);
 
         mainPage = new MainPage(driver);
         loginPage = new LoginPage(driver);
@@ -59,61 +64,37 @@ public class LoginTest {
         mainPage.open();
     }
 
-    @Parameterized.Parameters(name = "Тест в браузере: {0}")
-    public static Object[][] browser() {
-        return new Object[][]{
-                {"chromedriver"},
-                {"yandexdriver"},
-        };
-    }
-
-
     @Test
     @DisplayName("Вход по кнопке 'Войти в аккаунт' на главной")
+    @Description("Вход в аккаунт через кнопку 'Войти в аккаунт' на главной странице")
     public void loginButtonMainTest() {
-        Faker faker = new Faker();
-
-        name = faker.name().firstName();
-        email = faker.internet().emailAddress();
-        password = faker.internet().password();
-        UserModel user = new UserModel(email, password, name);
-        createUser(user);
         mainPage.waitForLoadButtonLogin();
         mainPage.clickLoginButton();
         loginPage.login(email, password);
         loginPage.clickLoginButton();
         mainPage.waitForLoadButtonOrder();
+        assertEquals("Оформить заказ", mainPage.getTextOrderButton());
 
     }
 
     @Test
     @DisplayName("Вход через кнопку 'Личный кабинет' на главной")
+    @Description("Вход в аккаунт через кнопку 'Личный кабинет' на главной странице")
     public void loginPersonalAccountButtonTest() {
-        Faker faker = new Faker();
-
-        name = faker.name().firstName();
-        email = faker.internet().emailAddress();
-        password = faker.internet().password();
-        UserModel user = new UserModel(email, password, name);
-        createUser(user);
         mainPage.waitForLoadButtonLogin();
         mainPage.clickPersonalAccount();
         loginPage.login(email, password);
         loginPage.clickLoginButton();
         mainPage.waitForLoadButtonOrder();
 
+        assertEquals("Оформить заказ", mainPage.getTextOrderButton());
+
     }
 
     @Test
     @DisplayName("Вход через кнопку в форме регистрации")
+    @Description("Вход в аккаунт через кнопку 'Войти' в форме регистрации ")
     public void loginButtonRegisterFormTest() {
-        Faker faker = new Faker();
-
-        name = faker.name().firstName();
-        email = faker.internet().emailAddress();
-        password = faker.internet().password();
-        UserModel user = new UserModel(email, password, name);
-        createUser(user);
         mainPage.waitForLoadButtonLogin();
         mainPage.clickPersonalAccount();
         loginPage.clickRegisterLink();
@@ -122,18 +103,14 @@ public class LoginTest {
         loginPage.clickLoginButton();
         mainPage.waitForLoadButtonOrder();
 
+        assertEquals("Оформить заказ", mainPage.getTextOrderButton());
+
     }
 
     @Test
     @DisplayName("Вход через кнопку в форме восстановления пароля")
+    @Description("Вход через кнопку 'Войти' в форме восстановления пароля")
     public void loginForgotPasswordPageButtonTest() {
-        Faker faker = new Faker();
-
-        name = faker.name().firstName();
-        email = faker.internet().emailAddress();
-        password = faker.internet().password();
-        UserModel user = new UserModel(email, password, name);
-        createUser(user);
         mainPage.waitForLoadButtonLogin();
         mainPage.clickPersonalAccount();
         loginPage.clickForgotPassword();
@@ -142,13 +119,14 @@ public class LoginTest {
         loginPage.clickLoginButton();
         mainPage.waitForLoadButtonOrder();
 
+        assertEquals("Оформить заказ", mainPage.getTextOrderButton());
+
     }
 
 
 
     @After
     public void tearDown() {
-        // Обязательно закрываем браузер после теста
         if (driver != null) {
             driver.quit();
         }

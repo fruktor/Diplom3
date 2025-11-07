@@ -1,4 +1,4 @@
-package ApiBase.constants;
+package user_api.constants;
 
 public class ApiConstant {
     public static final String URL = "https://stellarburgers.education-services.ru/";

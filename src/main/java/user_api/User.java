@@ -1,16 +1,16 @@
-package ApiBase;
+package user_api;
 
-import ApiBase.model.UserAuthModel;
-import ApiBase.model.UserModel;
+import user_api.model.UserAuthModel;
+import user_api.model.UserModel;
 import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 
-import static ApiBase.constants.ApiConstant.*;
+import static user_api.constants.ApiConstant.*;
 import static io.restassured.RestAssured.given;
 
-public class userApi {
+public class User {
 
     @Step("Создание уникального пользователя")
     public static Response createUser(UserModel userModel) {
