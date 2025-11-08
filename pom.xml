@@ -19,30 +19,12 @@
 
     <build>
         <plugins>
+            <!-- настройка плагина maven-surefire-plugin -->
             <plugin>
-                <!-- настройка плагина maven-surefire-plugin -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
-                <configuration>
-                    <testFailureIgnore>false</testFailureIgnore>
-                    <argLine>
-                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
-                    </argLine>
-                    <properties>
-                        <property>
-                            <name>listener</name>
-                            <value>io.qameta.allure.junit4.AllureJunit4</value>
-                        </property>
-                    </properties>
-                    <systemProperties>
-                        <property>
-                            <!-- папка, в которую будут генерироваться отчёты Allure -->
-                            <name>allure.results.directory</name>
-                            <value>${project.build.directory}/allure-results</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
+                <version>3.1.2</version>
+
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
@@ -50,7 +32,58 @@
                         <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
+
+                <configuration>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
+
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>io.qameta.allure.junit4.AllureJunit4</value>
+                        </property>
+                    </properties>
+
+                    <systemProperties>
+                        <property>
+                            <!-- папка, в которую будут генерироваться отчёты Allure -->
+                            <name>allure.results.directory</name>
+                            <value>${project.build.directory}/allure-results</value>
+                        </property>
+                    </systemProperties>
+
+                </configuration>
+
+                <!-- executions для двух браузеров -->
+                <executions>
+                    <execution>
+                        <id>chrome-tests</id>
+                        <phase>test</phase>
+                        <goals><goal>test</goal></goals>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <browser>chrome</browser>
+                            </systemPropertyVariables>
+                            <reportsDirectory>${project.build.directory}/surefire-reports/chrome</reportsDirectory>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>yandex-tests</id>
+                        <phase>test</phase>
+                        <goals><goal>test</goal></goals>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <browser>yandex</browser>
+                            </systemPropertyVariables>
+                            <reportsDirectory>${project.build.directory}/surefire-reports/yandex</reportsDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
             <!-- подключение плагина allure-maven для вызова функций Allure с помощью Maven -->
             <plugin>
                 <groupId>io.qameta.allure</groupId>
